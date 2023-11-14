@@ -1,15 +1,23 @@
+/*
+  TO DO:
+    1. Replace background.png
+    2. Add a new video game font style
+    3. Replace mole.png and mole2.png
+    4. Replace dirt.png and hole.png
+    5. Figure out mouseover and replace mallet.png
+*/
+
 const holes = document.querySelectorAll('.hole');
 const moles = document.querySelectorAll('.mole');
 const startButton = document.querySelector('#start');
-// TODO: Add the missing query selectors:
-const score; // Use querySelector() to get the score element
-const timerDisplay; // use querySelector() to get the timer element.
+const score = document.querySelector('#score'); // Use querySelector() to get the score element
+const timerDisplay = document.querySelector('#timer'); // use querySelector() to get the timer element.
 
 let time = 0;
 let timer;
 let lastHole = 0;
 let points = 0;
-let difficulty = "hard";
+let difficulty = "easy";
 
 /**
  * Generates a random integer within a range.
@@ -21,8 +29,8 @@ let difficulty = "hard";
  *
  */
 function randomInteger(min, max) {
-  // return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+  return Math.floor(Math.random() * (max - min + 1)) + min; // This logic is a common and concise approach for generating random integers within a specified range in JavaScript.
+} // randomInteger
 
 /**
  * Sets the time delay given a difficulty parameter.
@@ -40,9 +48,18 @@ function randomInteger(min, max) {
  *
  */
 function setDelay(difficulty) {
-  // TODO: Write your code here.
-  
-}
+  switch (difficulty) {
+    case 'easy':
+      return 1500;
+      break;
+    case 'normal':
+      return 1000;
+      break;
+    case 'hard':
+      return randomInteger(600, 1200);
+      break;
+  } // switch
+} // setDelay
 
 /**
  * Chooses a random hole from a list of holes.
@@ -58,10 +75,19 @@ function setDelay(difficulty) {
  * const holes = document.querySelectorAll('.hole');
  * chooseHole(holes) //> returns one of the 9 holes that you defined
  */
-function chooseHole(holes) {
-  // TODO: Write your code here.
-
-}
+function chooseHole(holes){
+  // Generate a random integer from 0 to 8 and assign it to an index variable.
+  const index = randomInteger(0, 8);
+  // Get a random hole with the random index
+  const hole = holes[index];
+  // If hole === lastHole, then call chooseHole(holes) again because you don't want to return the same hole.
+  if (hole === lastHole) {
+    return chooseHole(holes);
+  }
+  // Keep track of it (lastHole = hole) and return the hole.
+  lastHole = hole;
+  return hole;
+} // chooseHole
 
 /**
 *
@@ -84,9 +110,12 @@ function chooseHole(holes) {
 *
 */
 function gameOver() {
-  // TODO: Write your code here
-  
-}
+  if (time > 0) {
+    return showUp();
+  } else {
+    return stopGame();
+  }
+} // gameOver
 
 /**
 *
@@ -98,10 +127,8 @@ function gameOver() {
 *
 */
 function showUp() {
-  let delay = 0; // TODO: Update so that it uses setDelay()
-  const hole = 0;  // TODO: Update so that it use chooseHole()
-  return showAndHide(hole, delay);
-}
+  return showAndHide(chooseHole(holes), setDelay(difficulty));
+} // showUp
 
 /**
 *
@@ -112,15 +139,18 @@ function showUp() {
 *
 */
 function showAndHide(hole, delay){
-  // TODO: call the toggleVisibility function so that it adds the 'show' class.
+  // Add a toggle image function
+  toggleVisibility(hole);
   
   const timeoutID = setTimeout(() => {
-    // TODO: call the toggleVisibility function so that it removes the 'show' class when the timer times out.
-    
+    // Add a toggle image function
+    toggleVisibility(hole);
+
     gameOver();
-  }, 0); // TODO: change the setTimeout delay to the one provided as a parameter
+  }, delay);
+
   return timeoutID;
-}
+} // showAndHide
 
 /**
 *
@@ -129,10 +159,10 @@ function showAndHide(hole, delay){
 *
 */
 function toggleVisibility(hole){
-  // TODO: add hole.classList.toggle so that it adds or removes the 'show' class.
+  hole.classList.toggle('show');
   
   return hole;
-}
+} // toggleVisibility
 
 /**
 *
@@ -145,10 +175,10 @@ function toggleVisibility(hole){
 *
 */
 function updateScore() {
-  // TODO: Write your code here
-
+  points++; // Increment the points global variable by 1 point
+  score.textContent = points; // Update score.textContent with points
   return points;
-}
+} // updateScore
 
 /**
 *
@@ -158,11 +188,10 @@ function updateScore() {
 *
 */
 function clearScore() {
-  // TODO: Write your code here
-  // points = 0;
-  // score.textContent = points;
+  points = 0; // Set the points global variable to 0
+  score.textContent = points; // Update score.textContent with points
   return points;
-}
+} // clearScore
 
 /**
 *
@@ -170,11 +199,12 @@ function clearScore() {
 *
 */
 function updateTimer() {
-  // TODO: Write your code here.
-  // hint: this code is provided to you in the instructions.
-  
+  if (time > 0){
+    time -= 1;
+    timerDisplay.textContent = time;
+  }
   return time;
-}
+} // updateTimer
 
 /**
 *
@@ -183,10 +213,9 @@ function updateTimer() {
 *
 */
 function startTimer() {
-  // TODO: Write your code here
-  // timer = setInterval(updateTimer, 1000);
+  timer = setInterval(updateTimer, 1000);
   return timer;
-}
+} // startTimer
 
 /**
 *
@@ -197,10 +226,8 @@ function startTimer() {
 *
 */
 function whack(event) {
-  // TODO: Write your code here.
-  // call updateScore()
-  return points;
-}
+  return updateScore();
+} // whack
 
 /**
 *
@@ -209,9 +236,11 @@ function whack(event) {
 */
 function setEventListeners(){
   // TODO: Write your code here
-
+  moles.forEach(mole => {
+    mole.addEventListener('click', whack);
+  });
   return moles;
-}
+} // setEventListeners
 
 /**
 *
@@ -221,8 +250,9 @@ function setEventListeners(){
 */
 function setDuration(duration) {
   time = duration;
+  timerDisplay.textContent = time; // Sets the initial timer duration
   return time;
-}
+} // setDuration
 
 /**
 *
@@ -243,8 +273,11 @@ function stopGame(){
 *
 */
 function startGame(){
-  //setDuration(10);
-  //showUp();
+  score !== 0 ? clearScore() : "";// Resets the score at the start of a new game
+  setDuration(10);
+  setEventListeners();
+  startTimer();
+  showUp();
   return "game started";
 }
 
